@@ -1,0 +1,27 @@
+node {
+
+stage('Git CheckOut') {    
+git branch: 'main', url: 'https://github.com/amitvashisttech/devops-accenture-2020Oct12.git'
+}
+
+
+stage('Maven Clean') {    
+sh 'mvn clean -f 02-Jenkins/petclinic-code/pom.xml'
+}
+
+stage('Maven Compiling') {    
+sh 'mvn compile -f 02-Jenkins/petclinic-code/pom.xml'
+}
+
+stage('Maven Testing') {    
+sh 'mvn test -f 02-Jenkins/petclinic-code/pom.xml'
+}
+
+stage('Maven Packaging ') {    
+sh 'mvn package -f 02-Jenkins/petclinic-code/pom.xml'
+}
+
+stage('Archiving Artifacts') {    
+archive '02-Jenkins/petclinic-code/target/*.war'
+}
+}
