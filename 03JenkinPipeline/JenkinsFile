@@ -1,27 +1,58 @@
 node {
 
+notify('Started')
+
+try {
+
 stage('Git CheckOut') {    
 git branch: 'main', url: 'https://github.com/amitvashisttech/devops-accenture-2020Oct12.git'
 }
 
+def project_path = "02-Jenkins/petclinic-code"
+dir(project_path) {
 
 stage('Maven Clean') {    
-sh 'mvn clean -f 02-Jenkins/petclinic-code/pom.xml'
+sh 'mvn clean'
 }
 
 stage('Maven Compiling') {    
-sh 'mvn compile -f 02-Jenkins/petclinic-code/pom.xml'
+sh 'mvn compile'
 }
 
 stage('Maven Testing') {    
-sh 'mvn test -f 02-Jenkins/petclinic-code/pom.xml'
+sh 'mvn test'
 }
 
 stage('Maven Packaging ') {    
-sh 'mvn package -f 02-Jenkins/petclinic-code/pom.xml'
+sh 'mvn package'
 }
 
 stage('Archiving Artifacts') {    
-archive '02-Jenkins/petclinic-code/target/*.war'
+archive 'target/*.war'
 }
+
+stage('Deploy Petclinic Code into Docker Env.') {
+sh 'docker-compose up -d --build'
 }
+
+}
+
+notify('Done')
+} catch(err){
+  notify("Error ${err}")
+  currentBuild.result = 'FAILURE'
+}
+
+
+}
+
+
+def notify(status){
+   emailext ( 
+      to: "amitvashist7@outlook.com",
+      subject: "${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+      body: """<p>${status}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+            <p>Check console output at <a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMVER}]</a></p>""",
+
+   )
+  }
